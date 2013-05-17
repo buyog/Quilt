@@ -27,8 +27,8 @@ define(
             var _w  = width || 8,
                 _h  = height || 8,
                 _ar = _initGrid(_w, _h, tileMap),
-                _x0 = 20,
-                _y0 = 90,
+                _x0 = 60,
+                _y0 = 110,
                 _x1 = 300,
                 _y1 = 370,
                 _selected = null;

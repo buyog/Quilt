@@ -15,14 +15,16 @@ require(
 [
   "atto/core",
   "tangle/core",
+  "tangle/assetCache",
   "tangle/inputManager",
   "tangle/stateManager",
   "TileSet"
-], function(atto, Tangle, InputManager, StateManager, TileSet) {
+], function(atto, Tangle, AssetCache, InputManager, StateManager, TileSet) {
   "use strict";
 
     var _canvas   = document.querySelector('canvas'),
         _context  = null,
+        _bgColor  = "#222844",
         _inputs   = {
             MOVEUP    : 1,
             MOVEDOWN  : 2,
@@ -35,6 +37,7 @@ require(
         },
         game = {
             states : new StateManager(),
+            assets : new AssetCache(),
             attrs  : {
               width:  _canvas && _canvas.width  || 0,
               height: _canvas && _canvas.height || 0
@@ -47,26 +50,55 @@ require(
     if (_canvas) {
         //_log('getting context...');
         _context = _canvas.getContext('2d');
+        game.context = _context;
     }
+    
+    // init assets
+    game.assets.addAsset("logo", "assets/logo.png");
 
 
     // init state machine
     game.states.addState({
-        id: 0,
+    	id: 0,
+    	title: 'Loading',
+    	before: function(me) {
+    	},
+    	tick: function(me) {
+    		if (me.assets.ready()) {
+    			return 1;
+    		}
+    	},
+    	render: function(me, ctx) {
+            ctx.fillStyle = _bgColor;
+            ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
+            ctx.fillStyle = "white";
+            ctx.textBaseline = "top";
+            ctx.fillText("Loading...", 50, 330);
+    	}
+    }); // end of state 0
+    
+    game.states.addState({
+        id: 1,
         title: 'Play',
-        before: function() {},
+        before: function(me) {
+            // clear previous canvas
+            //ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
+            me.context.fillStyle = _bgColor;
+            me.context.fillRect(0,0, me.attrs.width, me.attrs.height);
+
+            if (me.assets.hasAsset("logo")) {
+            	me.context.drawImage(me.assets.getAsset("logo"), 40, 20);
+            }
+        },
         tick: function(me) {
             //_log('game.update()');
             // no global updating to do; just tell TileSet to update itself
             me.tiles.update();
         },
         render: function(me, ctx) {
-            // clear previous canvas
-            //ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
-
             me.tiles.render(ctx);
         }
-    }); // end of state 0
+    }); // end of state 1
 
 
     // StateManager event callbacks
