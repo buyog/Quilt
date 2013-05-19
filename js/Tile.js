@@ -5,6 +5,11 @@
 //@license: Free to use & modify, but please keep this credits message
 /***************************/
 
+/*jslint browser: true*/
+/*jslint plusplus: true*/
+/*jslint bitwise: true*/
+/*global define*/
+
 define(
     ["atto/pubsub"],
     function(pubsub) {
@@ -20,7 +25,7 @@ define(
         ];
 
         function constructor(_index, color) {
-            var _color = (color != undefined) ? color : Math.floor(Math.random()*6),
+            var _color = (color !== undefined) ? color : Math.floor(Math.random()*6),
                 _currentState = 0,
                 _i = _index,
                 _newIndex = -1,
@@ -28,13 +33,13 @@ define(
                 _yOffset = 0,
                 _dirty = true,
                 _states = {
-                    'default':0,
+                    'normal':0,
                     'active':1
                 };
 
             function _tick(game) {
                 switch (_currentState) {
-                    case _states.default:
+                    case _states.normal:
                         break;
                     case _states.active:
                         break;
@@ -50,7 +55,7 @@ define(
                     sx = (_color * 36) + 1;
 
                     switch (_currentState) {
-                        case _states.default:
+                        case _states.normal:
                             //ctx.drawImage(tiles, sx, 1, 34, 34, x, y, 30, 30);
                             ctx.fillStyle = (_color > -1) ? _tileStyles[_color] : "black";
                             ctx.fillRect(x,y, 30, 30);
@@ -83,7 +88,7 @@ define(
             }
 
             function _deselect() {
-                _currentState = _states.default;
+                _currentState = _states.normal;
                 _dirty = true;
             }
 
@@ -115,7 +120,7 @@ define(
                 select   : _select,
                 deselect : _deselect,
                 setDirty : _setDirty
-            }
+            };
 
         } // end of constructor
 

@@ -5,11 +5,14 @@
 //@license: Free to use & modify, but please keep this credits message
 /***************************/
 
+/*jslint browser: true*/
+/*global require, console*/
+
 require.config({
-    paths: {
-        'atto': '/atto',
-        'tangle': '/tangle'
-    }
+	paths: {
+		'atto': '/atto',
+		'tangle': '/tangle'
+	}
 });
 require(
 [
@@ -22,178 +25,179 @@ require(
 ], function(atto, Tangle, AssetCache, InputManager, StateManager, TileSet) {
   "use strict";
 
-    var _canvas   = document.querySelector('canvas'),
-        _context  = null,
-        _bgColor  = "#222844",
-        _inputs   = {
-            MOVEUP    : 1,
-            MOVEDOWN  : 2,
-            MOVELEFT  : 3,
-            MOVERIGHT : 4,
-            SHIFTUP    : 5,
-            SHIFTDOWN  : 6,
-            SHIFTLEFT  : 7,
-            SHIFTRIGHT : 8
-        },
-        game = {
-            states : new StateManager(),
-            assets : new AssetCache(),
-            attrs  : {
-              width:  _canvas && _canvas.width  || 0,
-              height: _canvas && _canvas.height || 0
-            },
-            im     : new InputManager(),
-            tiles  : new TileSet(5,5)
-        };
-        window.game = game; // DEBUG
-
-    if (_canvas) {
-        //_log('getting context...');
-        _context = _canvas.getContext('2d');
-        game.context = _context;
-    }
-    
-    // init assets
-    game.assets.addAsset("logo", "assets/logo.png");
+	var _canvas   = document.querySelector('canvas'),
+		_context  = null,
+		_bgColor  = "#222844",
+		_inputs   = {
+			MOVEUP	: 1,
+			MOVEDOWN  : 2,
+			MOVELEFT  : 3,
+			MOVERIGHT : 4,
+			SHIFTUP	: 5,
+			SHIFTDOWN  : 6,
+			SHIFTLEFT  : 7,
+			SHIFTRIGHT : 8
+		},
+		game = {
+			states : new StateManager(),
+			assets : new AssetCache(),
+			attrs  : {
+			  width:  (_canvas && _canvas.width ) || 0,
+			  height: (_canvas && _canvas.height) || 0
+			},
+			im	 : new InputManager(),
+			tiles  : new TileSet(5,5)
+		};
+		window.game = game; // DEBUG
 
 
-    // init state machine
-    game.states.addState({
-    	id: 0,
-    	title: 'Loading',
-    	before: function(me) {
-    	},
-    	tick: function(me) {
-    		if (me.assets.ready()) {
-    			return 1;
-    		}
-    	},
-    	render: function(me, ctx) {
-            ctx.fillStyle = _bgColor;
-            ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
-            ctx.fillStyle = "white";
-            ctx.textBaseline = "top";
-            ctx.fillText("Loading...", 50, 330);
-    	}
-    }); // end of state 0
-    
-    game.states.addState({
-        id: 1,
-        title: 'Play',
-        before: function(me) {
-        	var ctx = me.context;
-            // clear previous canvas
-            //ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
-            ctx.fillStyle = _bgColor;
-            ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
-
-            if (me.assets.hasAsset("logo")) {
-            	ctx.drawImage(me.assets.getAsset("logo"), 40, 20);
-            }
-
-            ctx.fillStyle = "white";
-            ctx.font = "10pt sans-serif";
-            ctx.fillText("Arrow keys to move pivot", 80, 360);
-            ctx.fillText("IJKL to shift tiles", 80, 380);
-        },
-        tick: function(me) {
-            //_log('game.update()');
-            // no global updating to do; just tell TileSet to update itself
-            me.tiles.update();
-        },
-        render: function(me, ctx) {
-            me.tiles.render(ctx);
-        }
-    }); // end of state 1
+	// helper functions
+	function _log(msg) {
+		console.log(msg);
+		//txtStatus.appendChild(document.createTextNode(msg));
+		//txtStatus.appendChild(document.createElement('br'));
+	}
 
 
-    // StateManager event callbacks
-    function stateChange(data) {
-        _log( atto.supplant("Entered state {id}: {title}", data) );
-    }
-    stateChange(game.states.currentState());
-    game.states.events.changeState.watch(stateChange);
+	if (_canvas) {
+		//_log('getting context...');
+		_context = _canvas.getContext('2d');
+		game.context = _context;
+	}
+	
+	// init assets
+	game.assets.addAsset("logo", "assets/logo.png");
 
 
-    // set up main loops
-    function _tick() {
-        game.states.tick(game);
-    }
-    function _render() {
-        game.states.render(game, _context);
-    }
-    Tangle.init(_tick, _render);
-    Tangle.play();
+	// init state machine
+	game.states.addState({
+		id: 0,
+		title: 'Loading',
+		before: function(me) {
+		},
+		tick: function(me) {
+			if (me.assets.ready()) {
+				return 1;
+			}
+		},
+		render: function(me, ctx) {
+			ctx.fillStyle = _bgColor;
+			ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
+			ctx.fillStyle = "white";
+			ctx.textBaseline = "top";
+			ctx.fillText("Loading...", 50, 330);
+		}
+	}); // end of state 0
+	
+	game.states.addState({
+		id: 1,
+		title: 'Play',
+		before: function(me) {
+			var ctx = me.context;
+			// clear previous canvas
+			//ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
+			ctx.fillStyle = _bgColor;
+			ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
+
+			if (me.assets.hasAsset("logo")) {
+				ctx.drawImage(me.assets.getAsset("logo"), 40, 20);
+			}
+
+			ctx.fillStyle = "white";
+			ctx.font = "10pt sans-serif";
+			ctx.fillText("Arrow keys to move pivot", 80, 410);
+			ctx.fillText("IJKL to shift tiles", 80, 430);
+		},
+		tick: function(me) {
+			//_log('game.update()');
+			// no global updating to do; just tell TileSet to update itself
+			me.tiles.update();
+		},
+		render: function(me, ctx) {
+			me.tiles.render(ctx);
+		}
+	}); // end of state 1
 
 
-    // helper functions
-    function _log(msg) {
-        console.log(msg);
-        //txtStatus.appendChild(document.createTextNode(msg));
-        //txtStatus.appendChild(document.createElement('br'));
-    }
+	// StateManager event callbacks
+	function stateChange(data) {
+		_log( atto.supplant("Entered state {id}: {title}", data) );
+	}
+	stateChange(game.states.currentState());
+	game.states.events.changeState.watch(stateChange);
 
 
-    // DOM event handlers
-
-    /*
-    atto.addEvent(_btnOnOff, 'click', function() {
-        if (Tangle.isPaused()) {
-            _btnOnOff.innerHTML = "Pause";
-            Tangle.play();
-        } else {
-            _btnOnOff.innerHTML = "Resume";
-            Tangle.pause();
-        }
-    });
-    */
+	// set up main loops
+	function _tick() {
+		game.states.tick(game);
+	}
+	function _render() {
+		game.states.render(game, _context);
+	}
+	Tangle.init(_tick, _render);
+	Tangle.play();
 
 
-    // set up input manager (could be done in another file and just included here)
+	// DOM event handlers
 
-    game.im.listen(function(input) {
-        switch(input) {
-            case _inputs.MOVEUP:
-                game.tiles.input(game.tiles.commands.MOVEUP);
-                break;
-            case _inputs.MOVEDOWN:
-                game.tiles.input(game.tiles.commands.MOVEDOWN);
-                break;
-            case _inputs.MOVELEFT:
-                game.tiles.input(game.tiles.commands.MOVELEFT);
-                break;
-            case _inputs.MOVERIGHT:
-                game.tiles.input(game.tiles.commands.MOVERIGHT);
-                break;
-            case _inputs.SHIFTUP:
-                game.tiles.input(game.tiles.commands.SHIFTUP);
-                break;
-            case _inputs.SHIFTDOWN:
-                game.tiles.input(game.tiles.commands.SHIFTDOWN);
-                break;
-            case _inputs.SHIFTLEFT:
-                game.tiles.input(game.tiles.commands.SHIFTLEFT);
-                break;
-            case _inputs.SHIFTRIGHT:
-                game.tiles.input(game.tiles.commands.SHIFTRIGHT);
-                break;
-            default:
-                break;
-        }
-    });
+	/*
+	atto.addEvent(_btnOnOff, 'click', function() {
+		if (Tangle.isPaused()) {
+			_btnOnOff.innerHTML = "Pause";
+			Tangle.play();
+		} else {
+			_btnOnOff.innerHTML = "Resume";
+			Tangle.pause();
+		}
+	});
+	*/
 
-    game.im.alias(document, 'key:I', _inputs.SHIFTUP);
-    game.im.alias(document, 'key:J', _inputs.SHIFTLEFT);
-    game.im.alias(document, 'key:K', _inputs.SHIFTDOWN);
-    game.im.alias(document, 'key:L', _inputs.SHIFTRIGHT);
 
-    game.im.alias(document, 'key:ARROW_U', _inputs.MOVEUP);
-    game.im.alias(document, 'key:ARROW_L', _inputs.MOVELEFT);
-    game.im.alias(document, 'key:ARROW_D', _inputs.MOVEDOWN);
-    game.im.alias(document, 'key:ARROW_R', _inputs.MOVERIGHT);
+	// set up input manager (could be done in another file and just included here)
 
-    game.im.alias(document, 'key:KEYPAD_8', _inputs.MOVEUP);
-    game.im.alias(document, 'key:KEYPAD_4', _inputs.MOVELEFT);
-    game.im.alias(document, 'key:KEYPAD_2', _inputs.MOVEDOWN);
-    game.im.alias(document, 'key:KEYPAD_6', _inputs.MOVERIGHT);
+	game.im.listen(function(input) {
+		switch(input) {
+			case _inputs.MOVEUP:
+				game.tiles.input(game.tiles.commands.MOVEUP);
+				break;
+			case _inputs.MOVEDOWN:
+				game.tiles.input(game.tiles.commands.MOVEDOWN);
+				break;
+			case _inputs.MOVELEFT:
+				game.tiles.input(game.tiles.commands.MOVELEFT);
+				break;
+			case _inputs.MOVERIGHT:
+				game.tiles.input(game.tiles.commands.MOVERIGHT);
+				break;
+			case _inputs.SHIFTUP:
+				game.tiles.input(game.tiles.commands.SHIFTUP);
+				break;
+			case _inputs.SHIFTDOWN:
+				game.tiles.input(game.tiles.commands.SHIFTDOWN);
+				break;
+			case _inputs.SHIFTLEFT:
+				game.tiles.input(game.tiles.commands.SHIFTLEFT);
+				break;
+			case _inputs.SHIFTRIGHT:
+				game.tiles.input(game.tiles.commands.SHIFTRIGHT);
+				break;
+			default:
+				break;
+		}
+	});
+
+	game.im.alias(document, 'key:I', _inputs.SHIFTUP);
+	game.im.alias(document, 'key:J', _inputs.SHIFTLEFT);
+	game.im.alias(document, 'key:K', _inputs.SHIFTDOWN);
+	game.im.alias(document, 'key:L', _inputs.SHIFTRIGHT);
+
+	game.im.alias(document, 'key:ARROW_U', _inputs.MOVEUP);
+	game.im.alias(document, 'key:ARROW_L', _inputs.MOVELEFT);
+	game.im.alias(document, 'key:ARROW_D', _inputs.MOVEDOWN);
+	game.im.alias(document, 'key:ARROW_R', _inputs.MOVERIGHT);
+
+	game.im.alias(document, 'key:KEYPAD_8', _inputs.MOVEUP);
+	game.im.alias(document, 'key:KEYPAD_4', _inputs.MOVELEFT);
+	game.im.alias(document, 'key:KEYPAD_2', _inputs.MOVEDOWN);
+	game.im.alias(document, 'key:KEYPAD_6', _inputs.MOVERIGHT);
 });
