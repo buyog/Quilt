@@ -81,14 +81,20 @@ require(
         id: 1,
         title: 'Play',
         before: function(me) {
+        	var ctx = me.context;
             // clear previous canvas
             //ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
-            me.context.fillStyle = _bgColor;
-            me.context.fillRect(0,0, me.attrs.width, me.attrs.height);
+            ctx.fillStyle = _bgColor;
+            ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
 
             if (me.assets.hasAsset("logo")) {
-            	me.context.drawImage(me.assets.getAsset("logo"), 40, 20);
+            	ctx.drawImage(me.assets.getAsset("logo"), 40, 20);
             }
+
+            ctx.fillStyle = "white";
+            ctx.font = "10pt sans-serif";
+            ctx.fillText("Arrow keys to move pivot", 80, 360);
+            ctx.fillText("IJKL to shift tiles", 80, 380);
         },
         tick: function(me) {
             //_log('game.update()');
