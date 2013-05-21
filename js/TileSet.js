@@ -33,11 +33,7 @@ define(
 
             for (x=0; x<len; x++) {
                 color = tiles[x];
-                if (color) {
-                    grid.push( new Tile(x, color) );
-                } else {
-                    grid.push( new Tile(x) );
-                }
+                grid.push( new Tile(x, color) );
             }
             return grid;
         }
@@ -48,17 +44,18 @@ define(
             var args = options || {},
                 _w  = args.width || 5,
                 _h  = args.height || 5,
-                _ar = _initGrid(_w, _h, args.tileMap),
                 _x0 = args.x0 || 20,
                 _y0 = args.y0 || 100,
                 _x1 = args.x1 || 300,
                 _y1 = args.y1 || 380,
-                _cellWidth  = 32, //~~((_x1-_x0) / _w),
-                _cellHeight = 32, //~~((_y1-_y0) / _h),
+                _cw = ~~((_x1-_x0) / _w),   //32
+                _ch = ~~((_y1-_y0) / _h),   //32
+                _ar         = _initGrid(_w, _h, args.start),
+                _goal       = args.goal,
                 _selected   = null;
 
-            console.log('calculated cell width:', _cellWidth);
-            console.log('calculated cell height:', _cellHeight);
+            console.log('calculated cell width:', _cw);
+            console.log('calculated cell height:', _ch);
 
             function _get_click_target(coords) {
                 var _ix, _iy;
@@ -191,15 +188,11 @@ define(
             }
 
             function _index_to_xy(idx) {
-                var _x = ~~(idx / _h) + 0.5,
-                    _y = idx % _h,
-                    _cellw = _x * _cellWidth,   // was _x*32
-                    _cellh = _y * _cellHeight;  // was _y*32
+                var x = ~~(idx / _h),
+                    y = idx % _h;
                 return {
-                    x:  _x,
-                    y:  _y,
-                    dx: _x0 + _cellw,
-                    dy: _y0 + _cellh
+                    x:  _x0 + (x * _cw),
+                    y:  _y0 + (y * _ch)
                 };
             }
 
@@ -211,21 +204,18 @@ define(
             function _render(ctx) {
                 var i, coords = null;
 
+                ctx.strokeStyle = "white";
                 ctx.strokeRect(_x0, _y0, _x1-_x0, _y1-_y0);
 
                 for (i=0; i<_w*_h; i++) {
                     coords = _index_to_xy(i);
 
-                    if (_ar[i]) {
-                        _ar[i].render(ctx, coords.dx, coords.dy);
-                    }
-
                     // FUTURE OPTIMIZATION: only repaint if this tile is "dirty"
-                    /*
-                    if (_ar[i].dirty) {
-                        _ar[i] && _ar[i].render(ctx, coords.dx, coords.dy);
-                        _ar[i].dirty = false;
-                    }*/
+                    //if (_ar[i].dirty) {
+                        //ctx.strokeRect(coords.x, coords.y, _cw, _ch);
+                        _ar[i].render(ctx, coords.x, coords.y, _cw, _ch);
+                    //    _ar[i].dirty = false;
+                    //}
                 }
              }
 

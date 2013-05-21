@@ -38,6 +38,26 @@ require(
 			SHIFTLEFT  : 7,
 			SHIFTRIGHT : 8
 		},
+		_tutorials = [
+			{
+				width  : 2,
+				height : 2,
+				start  : [0,0,1,1],
+				goal   : [0,1,1,0]
+			}
+			, {
+				width  : 3,
+				height : 3,
+				start  : [1,0,1,0,0,0,1,0,1],
+				goal   : [0,1,0,1,0,1,0,1,0]
+			}
+			, {
+				width  : 3,
+				height : 3,
+				start  : [2,4,6,2,4,6,2,4,6],
+				goal   : [2,2,4,2,4,6,4,6,6]
+			}
+		],
 		game = {
 			states : new StateManager(),
 			assets : new AssetCache(),
@@ -46,7 +66,7 @@ require(
 			  height: (_canvas && _canvas.height) || 0
 			},
 			im	 : new InputManager(),
-			tiles  : new TileSet(5,5)
+			tiles  : null
 		};
 		window.game = game; // DEBUG
 
@@ -57,6 +77,13 @@ require(
 		//txtStatus.appendChild(document.createTextNode(msg));
 		//txtStatus.appendChild(document.createElement('br'));
 	}
+
+	function _loadLevel(idx) {
+		if (idx < _tutorials.length) {
+			game.tiles = new TileSet(_tutorials[idx]);
+		}
+	}
+	window.loadLevel = _loadLevel;
 
 
 	if (_canvas) {
@@ -125,6 +152,10 @@ require(
 	}
 	stateChange(game.states.currentState());
 	game.states.events.changeState.watch(stateChange);
+
+
+	// tutorial level
+	_loadLevel(0);
 
 
 	// set up main loops

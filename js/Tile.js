@@ -15,6 +15,7 @@ define(
     function(pubsub) {
     "use strict";
         var _tileStyles = [
+            'black',
             'white',
             'red',
             'orange',
@@ -28,9 +29,6 @@ define(
             var _color = (color !== undefined) ? color : Math.floor(Math.random()*6),
                 _currentState = 0,
                 _i = _index,
-                _newIndex = -1,
-                _animTime = 0,
-                _yOffset = 0,
                 _dirty = true,
                 _states = {
                     'normal':0,
@@ -38,6 +36,8 @@ define(
                 };
 
             function _tick(game) {
+                // TODO
+                /*
                 switch (_currentState) {
                     case _states.normal:
                         break;
@@ -46,29 +46,36 @@ define(
                     default:
                         break;
                 }
+                */
             }
 
-            function _render(ctx, x, y) {
-                var sx;
+            function _render(ctx, x, y, w, h) {
+                var half_width, half_height, radius,
+                    width  = ~~w,
+                    height = ~~h
+                ;
 
                 if (_dirty) {
-                    sx = (_color * 36) + 1;
+                    ctx.strokeStyle = (_color === 0) ? "rgba(255,255,255, 0.35)" : "rgba(0,0,0, 0.35)";
 
                     switch (_currentState) {
                         case _states.normal:
-                            //ctx.drawImage(tiles, sx, 1, 34, 34, x, y, 30, 30);
+                            ctx.strokeRect(x,y, width, height);
                             ctx.fillStyle = (_color > -1) ? _tileStyles[_color] : "black";
-                            ctx.fillRect(x,y, 30, 30);
+                            ctx.fillRect(x,y, width, height);
                             break;
 
                         case _states.active:
                             ctx.fillStyle = (_color > -1) ? _tileStyles[_color] : "black";
-                            ctx.fillRect(x,y, 30, 30);
+                            ctx.fillRect(x,y, width, height);
 
                             // draw "selected" marker
+                            half_width  = ~~(w/2);
+                            half_height = ~~(h/2);
+                            radius      = ~~(w/4);
                             ctx.fillStyle = "rgba(255,255,255, 0.35)";
                             ctx.beginPath();
-                            ctx.arc(x + 15, y + 15, 10, 0, Math.PI*2, true);
+                            ctx.arc(x + half_width, y + half_height, radius, 0, Math.PI*2, true);
                             ctx.closePath();
                             ctx.fill();
                             ctx.stroke();
