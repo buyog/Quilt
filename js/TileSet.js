@@ -210,9 +210,9 @@ define(
             }
 
             function _update() {
-                //TODO: check to see if we've met the goal
+                // check to see if we've met the goal
                 if (_checkTiles()) {
-                    console.log("You matched the pattern! Great job!");
+                    pubsub.publish("quilt.tileset.solved");
                 }
             }
 

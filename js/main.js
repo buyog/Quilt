@@ -7,6 +7,7 @@
 
 /*jslint browser: true*/
 /*jslint bitwise: true*/
+/*jslint plusplus: true*/
 /*global require, console*/
 
 require.config({
@@ -18,12 +19,13 @@ require.config({
 require(
 [
   "atto/core",
+  "atto/pubsub",
   "tangle/core",
   "tangle/assetCache",
   "tangle/inputManager",
   "tangle/stateManager",
   "TileSet"
-], function(atto, Tangle, AssetCache, InputManager, StateManager, TileSet) {
+], function(atto, pubsub, Tangle, AssetCache, InputManager, StateManager, TileSet) {
   "use strict";
 
 	var _canvas   = document.querySelector('canvas'),
@@ -63,11 +65,12 @@ require(
 			states : new StateManager(),
 			assets : new AssetCache(),
 			attrs  : {
-			  width:  (_canvas && _canvas.width ) || 0,
-			  height: (_canvas && _canvas.height) || 0
+			  width  :  (_canvas && _canvas.width ) || 0,
+			  height : (_canvas && _canvas.height) || 0
 			},
-			im	 : new InputManager(),
-			tiles  : null
+			im	   : new InputManager(),
+			tiles  : null,
+			level  : 0
 		},
         _btnOnOff = document.getElementById('onoff'),
         _txtFPS   = document.getElementById('fps');
@@ -86,7 +89,12 @@ require(
 
 	function _loadLevel(idx) {
 		if (idx < _levels.length) {
+			console.log("Loading level", idx, "...");
 			game.tiles = new TileSet(_levels[idx]);
+			game.level = idx;
+			return true;
+		} else {
+			return false;
 		}
 	}
 	window.loadLevel = _loadLevel;
@@ -151,6 +159,67 @@ require(
 		}
 	}); // end of state 1
 
+	game.states.addState({
+		id: 2,
+		title: 'Level cleared',
+		before: function(me) {
+			var ctx = me.context;
+
+			// render winning tile pattern
+			me.tiles.render(ctx);
+
+			// render "CLEARED" banner
+			ctx.fillStyle = "rgb(0,160,209)";
+			ctx.fillRect(20,200, me.attrs.width - 40, 60);
+			ctx.fillStyle = "white";
+			ctx.font = "24pt sans-serif";
+			ctx.fillText("LEVEL CLEARED!", 25, 210);
+
+			// init state-transition countdown
+			me.tickCount = 0;
+		},
+		tick: function(me) {
+			if (me.tickCount++ > 100) {
+				return 1;	// go back to state 1 (we've already advanced to the next tile set)
+			}
+		},
+		render: function(me, ctx) {
+			// no additional rendering (did it in before())
+		}
+	}); // end of state 2 (LEVEL CLEAR)
+
+	game.states.addState({
+		id: 3,
+		title: 'Win',
+		before: function(me) {
+			var ctx = me.context;
+
+			// render winning tile pattern
+			me.tiles.render(ctx);
+
+			// render "CLEARED" banner
+			ctx.fillStyle = "rgb(0,160,209)";
+			ctx.fillRect(20,200, me.attrs.width - 40, 70);
+			ctx.fillStyle = "white";
+			ctx.font = "36pt sans-serif";
+			ctx.fillText("YOU WIN!", 50, 210);
+
+			// init state-transition countdown
+			//me.tickCount = 0;
+		},
+		tick: function(me) {
+			/*
+			if (me.tickCount++ > 100) {
+				me.level++;	// advance to next level
+				return 1;	// go back to state 1
+			}
+			*/
+		},
+		render: function(me, ctx) {
+			// no additional rendering (did it in before())
+		}
+	}); // end of state 3 (WIN)
+
 
 	// StateManager event callbacks
 	function stateChange(data) {
@@ -159,6 +228,19 @@ require(
 	stateChange(game.states.currentState());
 	game.states.events.changeState.watch(stateChange);
 
+
+	// Pub/Sub handlers (for lightweight cross-object messaging)
+	function _levelComplete() {
+		if (game.level === _levels.length-1) {
+			// W00t! You win!
+			game.states.changeState(3, game);
+		} else {
+			// show "CLEARED", then next level
+			game.states.changeState(2, game);
+			_loadLevel(game.level+1);
+		}
+	}
+	pubsub.subscribe("quilt.tileset.solved", _levelComplete);
 
 	// set up main loops
 	function _tick() {
