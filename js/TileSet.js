@@ -196,9 +196,24 @@ define(
                 };
             }
 
+            function _checkTiles() {
+                var i;
+                if (_ar.length !== _goal.length) {
+                    return false;
+                }
+                for (i=0; i<_ar.length; i++) {
+                    if (_ar[i].color !== _goal[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
 
             function _update() {
-                //TODO
+                //TODO: check to see if we've met the goal
+                if (_checkTiles()) {
+                    console.log("You matched the pattern! Great job!");
+                }
             }
 
             function _render(ctx) {

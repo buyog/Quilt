@@ -6,6 +6,7 @@
 /***************************/
 
 /*jslint browser: true*/
+/*jslint bitwise: true*/
 /*global require, console*/
 
 require.config({
@@ -38,7 +39,7 @@ require(
 			SHIFTLEFT  : 7,
 			SHIFTRIGHT : 8
 		},
-		_tutorials = [
+		_levels = [
 			{
 				width  : 2,
 				height : 2,
@@ -67,20 +68,25 @@ require(
 			},
 			im	 : new InputManager(),
 			tiles  : null
-		};
+		},
+        _btnOnOff = document.getElementById('onoff'),
+        _txtFPS   = document.getElementById('fps');
 		window.game = game; // DEBUG
 
 
 	// helper functions
+	function _updateFPS(fps) {
+        _txtFPS.innerHTML = ~~(fps);
+    }
+
 	function _log(msg) {
-		console.log(msg);
-		//txtStatus.appendChild(document.createTextNode(msg));
-		//txtStatus.appendChild(document.createElement('br'));
+		var d = new Date().toISOString().slice(-13, -1);
+		console.log(atto.supplant("[{time}] {msg}", {"time":d, "msg": msg}));
 	}
 
 	function _loadLevel(idx) {
-		if (idx < _tutorials.length) {
-			game.tiles = new TileSet(_tutorials[idx]);
+		if (idx < _levels.length) {
+			game.tiles = new TileSet(_levels[idx]);
 		}
 	}
 	window.loadLevel = _loadLevel;
@@ -154,10 +160,6 @@ require(
 	game.states.events.changeState.watch(stateChange);
 
 
-	// tutorial level
-	_loadLevel(0);
-
-
 	// set up main loops
 	function _tick() {
 		game.states.tick(game);
@@ -165,13 +167,15 @@ require(
 	function _render() {
 		game.states.render(game, _context);
 	}
-	Tangle.init(_tick, _render);
+	Tangle.init(_tick, _render, _updateFPS);
+
+	// start first tutorial level
+	_loadLevel(0);
 	Tangle.play();
 
 
 	// DOM event handlers
 
-	/*
 	atto.addEvent(_btnOnOff, 'click', function() {
 		if (Tangle.isPaused()) {
 			_btnOnOff.innerHTML = "Pause";
@@ -181,7 +185,6 @@ require(
 			Tangle.pause();
 		}
 	});
-	*/
 
 
 	// set up input manager (could be done in another file and just included here)
