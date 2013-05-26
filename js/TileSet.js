@@ -38,20 +38,20 @@ define(
             return grid;
         }
 
-        function constructor(options) {
+        function constructor(options, isPreview) {
 
             // private defs & methods
             var args = options || {},
                 _w  = args.width || 5,
                 _h  = args.height || 5,
-                _x0 = args.x0 || 20,
-                _y0 = args.y0 || 100,
+                _x0 = args.x0 || isPreview ? 240 : 20,
+                _y0 = args.y0 || isPreview ? 400 : 100,
                 _x1 = args.x1 || 300,
-                _y1 = args.y1 || 380,
-                _cw = ~~((_x1-_x0) / _w),   //32
-                _ch = ~~((_y1-_y0) / _h),   //32
-                _ar         = _initGrid(_w, _h, args.start),
-                _goal       = args.goal,
+                _y1 = args.y1 || isPreview ? 460 : 380,
+                _cw = ~~((_x1-_x0) / _w),
+                _ch = ~~((_y1-_y0) / _h),
+                _ar         = _initGrid(_w, _h, isPreview ? args.goal : args.start),
+                _goal       = isPreview ? null : args.goal,
                 _selected   = null;
 
             function _get_click_target(coords) {
@@ -208,7 +208,7 @@ define(
 
             function _update() {
                 // check to see if we've met the goal
-                if (_checkTiles()) {
+                if (_goal && _checkTiles()) {
                     pubsub.publish("quilt.tileset.solved");
                 }
             }
@@ -289,7 +289,9 @@ define(
 
 
             // set up initial state
-            _selectTile(0);
+            if (!isPreview) {
+                _selectTile(0);
+            }
 
 
             return {

@@ -75,9 +75,10 @@ require(
 			  width  :  (_canvas && _canvas.width ) || 0,
 			  height : (_canvas && _canvas.height) || 0
 			},
-			im	   : new InputManager(),
-			tiles  : null,
-			level  : 0
+			im	    : new InputManager(),
+			tiles   : null,
+			preview : null,
+			level   : 0
 		},
         _btnOnOff = document.getElementById('onoff'),
         _txtFPS   = document.getElementById('fps');
@@ -98,6 +99,7 @@ require(
 		if (idx < _levels.length) {
 			console.log("Loading level", idx, "...");
 			game.tiles = new TileSet(_levels[idx]);
+			game.preview = new TileSet(_levels[idx], true);
 			game.level = idx;
 			return true;
 		} else {
@@ -162,6 +164,7 @@ require(
 
 			// set the entire tilemap's dirty flag so it redraws
 			me.tiles.setDirty(true);
+			me.preview.setDirty(true);
 		},
 		tick: function(me) {
 			//_log('game.update()');
@@ -170,6 +173,7 @@ require(
 		},
 		render: function(me, ctx) {
 			me.tiles.render(ctx);
+			me.preview.render(ctx);
 		}
 	}); // end of state 1
 
