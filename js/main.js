@@ -227,7 +227,7 @@ require(
 
 
 	// Pub/Sub handlers (for lightweight cross-object messaging)
-	function _levelComplete() {
+	pubsub.subscribe("quilt.tileset.solved", function ps_levelComplete() {
 		if (game.level === _levels.length-1) {
 			// W00t! You win!
 			game.states.changeState(3, game);
@@ -236,8 +236,7 @@ require(
 			game.states.changeState(2, game);
 			_loadLevel(game.level+1);
 		}
-	}
-	pubsub.subscribe("quilt.tileset.solved", _levelComplete);
+	});
 
 	// set up main loops
 	function _tick() {
