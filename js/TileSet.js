@@ -26,6 +26,16 @@ define(
             'SHIFTRIGHT': 's7'
         };
 
+
+        function _printTileArray(tiles) {
+            var i, out=[];
+            for (i=0; i<tiles.length; i++) {
+                out.push(tiles[i].color);
+            }
+
+            return out.join(',');
+        }
+
         function _initGrid(w,h, tileMap) {
             var x, color, len=w*h,
                 grid = [],
@@ -117,18 +127,17 @@ define(
                 var col, l, r, index, buffer = [];
                 if (offset === 0) {
                     return;
-                } else if (offset < 0) {
-                    offset += _h;
                 }
                 for (col=0; col<_w; col++) {
                     index = (col * _h) + row;
                     buffer.push(_ar[index]);
                 }
-                //console.log('about to shift row', row, ', offset:', offset, ', buffer:', printTileArray(buffer));
-                l = buffer.slice(_h-offset);
-                r = buffer.slice(0, _h-offset);
+                //console.log('about to shift row', row, ', offset:', offset, ', buffer:', _printTileArray(buffer));
+                offset = offset * -1;   // slice offset is backwards for our purposes
+                l = buffer.slice(offset);
+                r = buffer.slice(0, offset);
                 buffer = l.concat(r);
-                //console.log('shifted:', printTileArray(buffer));
+                //console.log('shifted:', _printTileArray(buffer));
 
                 for (col=0; col<_w; col++) {
                     index = (col * _h) + row;
@@ -261,12 +270,12 @@ define(
                         break;
 
                     case _commands.SHIFTUP:
-                        col = ~~(_selected / _w);
+                        col = ~~(_selected / _h);
                         _shiftCol(col,-1);
                         break;
 
                     case _commands.SHIFTDOWN:
-                        col = ~~(_selected / _w);
+                        col = ~~(_selected / _h);
                         _shiftCol(col,1);
                         break;
 
