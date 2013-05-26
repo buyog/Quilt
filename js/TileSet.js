@@ -62,7 +62,8 @@ define(
                 _ch = ~~((_y1-_y0) / _h),
                 _ar         = _initGrid(_w, _h, isPreview ? args.goal : args.start),
                 _goal       = isPreview ? null : args.goal,
-                _selected   = null;
+                _selected   = null,
+                _dirty      = true;
 
             function _get_click_target(coords) {
                 var _ix, _iy;
@@ -225,17 +226,24 @@ define(
             function _render(ctx) {
                 var i, coords = null;
 
-                ctx.strokeStyle = "white";
-                ctx.strokeRect(_x0, _y0, _x1-_x0, _y1-_y0);
+                if (_dirty) {
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(_x0, _y0, _x1-_x0, _y1-_y0);
+                    _dirty = false;
+                }
 
                 for (i=0; i<_w*_h; i++) {
                     coords = _index_to_xy(i);
                     _ar[i].render(ctx, coords.x, coords.y, _cw, _ch);
                 }
+
+                ctx.strokeStyle = "white";
+                ctx.strokeRect(_x0, _y0, _x1-_x0, _y1-_y0);
             }
 
             function _setDirty(val) {
                 var i;
+                _dirty = true;
                 for (i=0; i<_w*_h; i++) {
                     _ar[i].setDirty(val);
                 }
