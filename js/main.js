@@ -39,7 +39,8 @@ require(
 			SHIFTUP	: 5,
 			SHIFTDOWN  : 6,
 			SHIFTLEFT  : 7,
-			SHIFTRIGHT : 8
+			SHIFTRIGHT : 8,
+			HELP       : 9
 		},
 		_levels = [
 			{
@@ -151,9 +152,16 @@ require(
 			}
 
 			ctx.fillStyle = "white";
+
 			ctx.font = "10pt sans-serif";
-			ctx.fillText("Arrow keys to move pivot", 80, 410);
-			ctx.fillText("IJKL to shift tiles", 80, 430);
+			ctx.fillText("(ESC to toggle help)", 25, 422);
+
+
+			ctx.font = "18pt sans-serif";
+			ctx.fillText("GOAL:", 160, 416);
+
+			// set the entire tilemap's dirty flag so it redraws
+			me.tiles.setDirty(true);
 		},
 		tick: function(me) {
 			//_log('game.update()');
@@ -217,6 +225,33 @@ require(
 		}
 	}); // end of state 3 (WIN)
 
+	game.states.addState({
+		id: 4,
+		title: 'Help',
+		before: function(me) {
+			var ctx = me.context;
+
+			// render "HELP" overlay
+			ctx.fillStyle = "rgb(0,160,209)";
+			ctx.fillRect(10,180, me.attrs.width - 20, 100);
+
+			// render help text
+			ctx.fillStyle = "black";
+			ctx.font = "10pt sans-serif";
+			ctx.fillText("Objective:", 35, 206);
+			ctx.fillText("Controls:", 35, 226);
+
+			ctx.fillStyle = "white";
+			ctx.fillText("Match the GOAL pattern", 105, 206);
+			ctx.fillText("Arrow keys to move pivot point", 105, 226);
+			ctx.fillText("IJKL to shift tiles", 105, 246);
+		},
+		tick: function(me) {
+			// wait for user input to return to Play state
+		},
+		render: function(me, ctx) {}
+	}); // end of state 4 (HELP)
+
 
 	// StateManager event callbacks
 	function stateChange(data) {
@@ -268,35 +303,65 @@ require(
 	// set up input manager (could be done in another file and just included here)
 
 	game.im.listen(function(input) {
+		var currentStateId;
+
+		currentStateId = game.states.currentState().id;
 		switch(input) {
 			case _inputs.MOVEUP:
-				game.tiles.input(game.tiles.commands.MOVEUP);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.MOVEUP);
+				}
 				break;
 			case _inputs.MOVEDOWN:
-				game.tiles.input(game.tiles.commands.MOVEDOWN);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.MOVEDOWN);
+				}
 				break;
 			case _inputs.MOVELEFT:
-				game.tiles.input(game.tiles.commands.MOVELEFT);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.MOVELEFT);
+				}
 				break;
 			case _inputs.MOVERIGHT:
-				game.tiles.input(game.tiles.commands.MOVERIGHT);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.MOVERIGHT);
+				}
 				break;
 			case _inputs.SHIFTUP:
-				game.tiles.input(game.tiles.commands.SHIFTUP);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.SHIFTUP);
+				}
 				break;
 			case _inputs.SHIFTDOWN:
-				game.tiles.input(game.tiles.commands.SHIFTDOWN);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.SHIFTDOWN);
+				}
 				break;
 			case _inputs.SHIFTLEFT:
-				game.tiles.input(game.tiles.commands.SHIFTLEFT);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.SHIFTLEFT);
+				}
 				break;
 			case _inputs.SHIFTRIGHT:
-				game.tiles.input(game.tiles.commands.SHIFTRIGHT);
+				if (currentStateId === 1) {
+					game.tiles.input(game.tiles.commands.SHIFTRIGHT);
+				}
+				break;
+			case _inputs.HELP:
+				if (currentStateId === 1) {
+					// if Play state, show Help
+					game.states.changeState(4, game);
+				} else if (currentStateId === 4) {
+					// if in help screen, cancel back to Play
+					game.states.changeState(1, game);
+				}
 				break;
 			default:
 				break;
 		}
 	});
+
+	game.im.alias(document, 'key:ESCAPE', _inputs.HELP);
 
 	game.im.alias(document, 'key:I', _inputs.SHIFTUP);
 	game.im.alias(document, 'key:J', _inputs.SHIFTLEFT);
