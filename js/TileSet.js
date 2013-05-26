@@ -85,6 +85,10 @@ define(
                 return null;
             }
 
+            function _debug() {
+                console.log(_printTileArray(_ar));
+            }
+
             function _selectTile(idx) {
                 if (idx >= 0 && idx < _ar.length) {
                     if (_selected !== null) {
