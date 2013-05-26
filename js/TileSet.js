@@ -54,9 +54,6 @@ define(
                 _goal       = args.goal,
                 _selected   = null;
 
-            console.log('calculated cell width:', _cw);
-            console.log('calculated cell height:', _ch);
-
             function _get_click_target(coords) {
                 var _ix, _iy;
                 //console.log('coords:', coords.x, ',', coords.y);
@@ -239,13 +236,13 @@ define(
 
                 switch (cmd) {
                     case _commands.MOVEUP:
-                        if (_selected > 0 && _selected % _h !== 0) {
+                        if ((_selected > 0) && (_selected % _h !== 0)) {
                             _selectTile(_selected-1);
                         }
                         break;
 
                     case _commands.MOVEDOWN:
-                        if (_selected < _ar.length-1) {
+                        if ((_selected < _ar.length-1) && (_selected % _h !== _h-1)) {
                             _selectTile(_selected+1);
                         }
                         break;
