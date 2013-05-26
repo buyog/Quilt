@@ -24,8 +24,11 @@ require(
   "tangle/assetCache",
   "tangle/inputManager",
   "tangle/stateManager",
-  "TileSet"
-], function(atto, pubsub, Tangle, AssetCache, InputManager, StateManager, TileSet) {
+  "TileSet",
+  "levelData"
+], function(
+	atto, pubsub, Tangle, AssetCache, InputManager, StateManager,
+	TileSet, _levels) {
   "use strict";
 
 	var _canvas   = document.querySelector('canvas'),
@@ -42,32 +45,6 @@ require(
 			SHIFTRIGHT : 8,
 			HELP       : 9
 		},
-		_levels = [
-			{
-				width  : 2,
-				height : 2,
-				start  : [0,0,1,1],
-				goal   : [0,1,1,0]
-			}
-			, {
-				width  : 3,
-				height : 3,
-				start  : [1,0,1,0,0,0,1,0,1],
-				goal   : [0,1,0,1,0,1,0,1,0]
-			}
-			, {
-				width  : 3,
-				height : 3,
-				start  : [2,4,6,2,4,6,2,4,6],
-				goal   : [2,2,4,2,4,6,4,6,6]
-			}
-			, {
-				width  : 4,
-				height : 4,
-				start  : [0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0],
-				goal   : [1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1]
-			}
-		],
 		game = {
 			states : new StateManager(),
 			assets : new AssetCache(),
