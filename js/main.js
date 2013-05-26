@@ -156,10 +156,12 @@ require(
 			ctx.fillStyle = "white";
 
 			ctx.font = "10pt sans-serif";
-			ctx.fillText("(ESC to toggle help)", 25, 422);
+			//ctx.fillText("(ESC to toggle help)", 25, 422);
+			ctx.fillText("(ESC to toggle help)", 100, 462);
 
 
 			ctx.font = "18pt sans-serif";
+			ctx.fillText("LEVEL: " + (me.level+1), 20, 416);
 			ctx.fillText("GOAL:", 160, 416);
 
 			// set the entire tilemap's dirty flag so it redraws
