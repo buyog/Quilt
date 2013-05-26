@@ -221,15 +221,16 @@ define(
 
                 for (i=0; i<_w*_h; i++) {
                     coords = _index_to_xy(i);
-
-                    // FUTURE OPTIMIZATION: only repaint if this tile is "dirty"
-                    //if (_ar[i].dirty) {
-                        //ctx.strokeRect(coords.x, coords.y, _cw, _ch);
-                        _ar[i].render(ctx, coords.x, coords.y, _cw, _ch);
-                    //    _ar[i].dirty = false;
-                    //}
+                    _ar[i].render(ctx, coords.x, coords.y, _cw, _ch);
                 }
-             }
+            }
+
+            function _setDirty(val) {
+                var i;
+                for (i=0; i<_w*_h; i++) {
+                    _ar[i].setDirty(val);
+                }
+            }
 
             function _cmd(cmd) {
                 var col, row;
@@ -294,6 +295,7 @@ define(
             return {
                 update   : _update,
                 render   : _render,
+                setDirty : _setDirty,
                 input    : _cmd,
                 commands : _commands
             }; // end of public interface
