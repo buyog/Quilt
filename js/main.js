@@ -175,7 +175,7 @@ require(
 			me.tiles.render(ctx);
 
 			// render "CLEARED" banner
-			ctx.fillStyle = "rgb(0,160,209)";
+			ctx.fillStyle = "rgba(0,160,209,0.5)";
 			ctx.fillRect(20,200, me.attrs.width - 40, 60);
 			ctx.fillStyle = "white";
 			ctx.font = "24pt sans-serif";
@@ -204,22 +204,13 @@ require(
 			me.tiles.render(ctx);
 
 			// render "CLEARED" banner
-			ctx.fillStyle = "rgb(0,160,209)";
+			ctx.fillStyle = "rgba(0,160,209,0.5)";
 			ctx.fillRect(20,200, me.attrs.width - 40, 70);
 			ctx.fillStyle = "white";
 			ctx.font = "36pt sans-serif";
 			ctx.fillText("YOU WIN!", 50, 210);
-
-			// init state-transition countdown
-			//me.tickCount = 0;
 		},
 		tick: function(me) {
-			/*
-			if (me.tickCount++ > 100) {
-				me.level++;	// advance to next level
-				return 1;	// go back to state 1
-			}
-			*/
 		},
 		render: function(me, ctx) {
 			// no additional rendering (did it in before())
