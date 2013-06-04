@@ -10,6 +10,8 @@
     <link rel="icon" type="image/png" href="qlogo.png"/>
     <style>
         canvas { -webkit-tap-highlight-color: transparent; }
+        #log { float: right; display: none; }
+        #log.debug { display: inline; }
     </style>
   </head>
   <body>
@@ -25,6 +27,7 @@
       <section id="controls">
         <button id="onoff">Pause</button>
         FPS: <span id="fps">&mdash;</span>
+        <span id="log">&mdash;</span>
       </section>
     </div>
     <script src="../../require.js" data-main="js/main"></script>

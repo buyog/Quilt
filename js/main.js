@@ -44,7 +44,8 @@ require(
 			SHIFTLEFT  : 7,
 			SHIFTRIGHT : 8,
 			HELP       : 9,
-			RESTART    : 10
+			RESTART    : 10,
+			DEBUG      : 11
 		},
 		game = {
 			states : new StateManager(),
@@ -59,7 +60,8 @@ require(
 			level   : 0
 		},
         _btnOnOff = document.getElementById('onoff'),
-        _txtFPS   = document.getElementById('fps');
+        _txtFPS   = document.getElementById('fps'),
+        _txtLog   = document.getElementById('log');
 		window.game = game; // DEBUG
 
 
@@ -69,8 +71,10 @@ require(
     }
 
 	function _log(msg) {
-		var d = new Date().toISOString().slice(-13, -1);
-		console.log(atto.supplant("[{time}] {msg}", {"time":d, "msg": msg}));
+		var d = new Date().toISOString().slice(-13, -1),
+			s = atto.supplant("[{time}] {msg}", {"time":d, "msg": msg});
+		console.log(s);
+		_txtLog.innerHTML = msg;
 	}
 
 	function _loadLevel(idx) {
@@ -328,6 +332,7 @@ require(
 				}
 				break;
 			case _inputs.HELP:
+				_log("Got HELP input");
 				if (currentStateId === 1) {
 					// if Play state, show Help
 					game.states.changeState(4, game);
@@ -342,6 +347,9 @@ require(
 					game.tiles.reset();
 				}
 				break;
+			case _inputs.DEBUG:
+				_txtLog.classList.toggle("debug");
+				break;
 			default:
 				break;
 		}
@@ -354,6 +362,7 @@ require(
 	game.im.alias(document, 'key:K', _inputs.SHIFTDOWN);
 	game.im.alias(document, 'key:L', _inputs.SHIFTRIGHT);
 	game.im.alias(document, 'key:R', _inputs.RESTART);
+	game.im.alias(document, 'key:D', _inputs.DEBUG);
 
 	game.im.alias(document, 'key:ARROW_U', _inputs.MOVEUP);
 	game.im.alias(document, 'key:ARROW_L', _inputs.MOVELEFT);
@@ -364,4 +373,10 @@ require(
 	game.im.alias(document, 'key:KEYPAD_4', _inputs.MOVELEFT);
 	game.im.alias(document, 'key:KEYPAD_2', _inputs.MOVEDOWN);
 	game.im.alias(document, 'key:KEYPAD_6', _inputs.MOVERIGHT);
+
+	game.im.alias(document, 'touch:SWIPE_UP',    _inputs.HELP);
+	//game.im.alias(document, 'touch:SWIPE_UP',    _inputs.SHIFTUP);
+	//game.im.alias(document, 'touch:SWIPE_LEFT',  _inputs.SHIFTLEFT);
+	//game.im.alias(document, 'touch:SWIPE_DOWN',  _inputs.SHIFTDOWN);
+	//game.im.alias(document, 'touch:SWIPE_RIGHT', _inputs.SHIFTRIGHT);
 });
