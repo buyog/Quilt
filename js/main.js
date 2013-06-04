@@ -65,7 +65,7 @@ require(
 
 	// helper functions
 	function _updateFPS(fps) {
-        _txtFPS.innerHTML = ~~(fps);
+        _txtFPS.innerHTML = ~~fps;	// (double-tilde == faster Math.floor)
     }
 
 	function _log(msg) {
@@ -79,9 +79,6 @@ require(
 			game.tiles = new TileSet(_levels[idx]);
 			game.preview = new TileSet(_levels[idx], true);
 			game.level = idx;
-			return true;
-		} else {
-			return false;
 		}
 	}
 	window.loadLevel = _loadLevel;
@@ -101,8 +98,7 @@ require(
 	game.states.addState({
 		id: 0,
 		title: 'Loading',
-		before: function(me) {
-		},
+		before: function() {},
 		tick: function(me) {
 			if (me.assets.ready()) {
 				return 1;
@@ -181,7 +177,7 @@ require(
 				return 1;	// go back to state 1 (we've already advanced to the next tile set)
 			}
 		},
-		render: function(me, ctx) {
+		render: function() {
 			// no additional rendering (did it in before())
 		}
 	}); // end of state 2 (LEVEL CLEAR)
@@ -202,9 +198,8 @@ require(
 			ctx.font = "36pt sans-serif";
 			ctx.fillText("YOU WIN!", 50, 210);
 		},
-		tick: function(me) {
-		},
-		render: function(me, ctx) {
+		tick: function() {},
+		render: function() {
 			// no additional rendering (did it in before())
 		}
 	}); // end of state 3 (WIN)
@@ -231,10 +226,10 @@ require(
 			ctx.fillText("IJKL to shift tiles", 105, 246);
 			ctx.fillText("R to restart current level", 105, 266);
 		},
-		tick: function(me) {
+		tick: function() {
 			// wait for user input to return to Play state
 		},
-		render: function(me, ctx) {}
+		render: function() {}
 	}); // end of state 4 (HELP)
 
 
