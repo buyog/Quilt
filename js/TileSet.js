@@ -11,8 +11,8 @@
 /*global define, console*/
 
 define(
-    ["atto/core", "atto/pubsub", "Tile"],
-    function(atto, pubsub, Tile) {
+    ["atto/pubsub", "Tile"],
+    function(pubsub, Tile) {
         "use strict";
 
         var _commands = {
@@ -161,7 +161,6 @@ define(
             }
 
             function _shift(x1,y1,x2,y2) {
-                var i, tmp;
                 //   0  1  2  3  4  5  6  7
                 //           y1       y2     == offset +3 (y2-y1)
                 //   5  6  7  0  1  2  3  4  == ar.slice(8-3) + ar.slice(0,8-3)
@@ -245,6 +244,10 @@ define(
                 ctx.strokeRect(_x0, _y0, _x1-_x0, _y1-_y0);
             }
 
+            function _reset() {
+                _ar = _initGrid(_w, _h, isPreview ? args.goal : args.start);
+            }
+
             function _setDirty(val) {
                 var i;
                 _dirty = true;
@@ -319,6 +322,7 @@ define(
                 update   : _update,
                 render   : _render,
                 setDirty : _setDirty,
+                reset    : _reset,
                 input    : _cmd,
                 commands : _commands
             }; // end of public interface

@@ -35,15 +35,16 @@ require(
 		_context  = null,
 		_bgColor  = "#222844",
 		_inputs   = {
-			MOVEUP	: 1,
-			MOVEDOWN  : 2,
-			MOVELEFT  : 3,
-			MOVERIGHT : 4,
-			SHIFTUP	: 5,
+			MOVEUP	   : 1,
+			MOVEDOWN   : 2,
+			MOVELEFT   : 3,
+			MOVERIGHT  : 4,
+			SHIFTUP	   : 5,
 			SHIFTDOWN  : 6,
 			SHIFTLEFT  : 7,
 			SHIFTRIGHT : 8,
-			HELP       : 9
+			HELP       : 9,
+			RESTART    : 10
 		},
 		game = {
 			states : new StateManager(),
@@ -216,7 +217,7 @@ require(
 
 			// render "HELP" overlay
 			ctx.fillStyle = "rgb(0,160,209)";
-			ctx.fillRect(10,180, me.attrs.width - 20, 100);
+			ctx.fillRect(10,180, me.attrs.width - 20, 120);
 
 			// render help text
 			ctx.fillStyle = "black";
@@ -228,6 +229,7 @@ require(
 			ctx.fillText("Match the GOAL pattern", 105, 206);
 			ctx.fillText("Arrow keys to move pivot point", 105, 226);
 			ctx.fillText("IJKL to shift tiles", 105, 246);
+			ctx.fillText("R to restart current level", 105, 266);
 		},
 		tick: function(me) {
 			// wait for user input to return to Play state
@@ -339,6 +341,12 @@ require(
 					game.states.changeState(1, game);
 				}
 				break;
+			case _inputs.RESTART:
+				if (currentStateId === 1) {
+					// if Play state, show Help
+					game.tiles.reset();
+				}
+				break;
 			default:
 				break;
 		}
@@ -350,6 +358,7 @@ require(
 	game.im.alias(document, 'key:J', _inputs.SHIFTLEFT);
 	game.im.alias(document, 'key:K', _inputs.SHIFTDOWN);
 	game.im.alias(document, 'key:L', _inputs.SHIFTRIGHT);
+	game.im.alias(document, 'key:R', _inputs.RESTART);
 
 	game.im.alias(document, 'key:ARROW_U', _inputs.MOVEUP);
 	game.im.alias(document, 'key:ARROW_L', _inputs.MOVELEFT);
