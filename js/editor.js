@@ -35,17 +35,15 @@ require(
 		_context  = null,
 		_bgColor  = "#222844",
 		_inputs   = {
-			MOVEUP	   : 1,
-			MOVEDOWN   : 2,
-			MOVELEFT   : 3,
-			MOVERIGHT  : 4,
-			SHIFTUP	   : 5,
+			MOVEUP	: 1,
+			MOVEDOWN  : 2,
+			MOVELEFT  : 3,
+			MOVERIGHT : 4,
+			SHIFTUP	: 5,
 			SHIFTDOWN  : 6,
 			SHIFTLEFT  : 7,
 			SHIFTRIGHT : 8,
-			HELP       : 9,
-			RESTART    : 10,
-			DEBUG      : 11
+			HELP       : 9
 		},
 		game = {
 			states : new StateManager(),
@@ -60,21 +58,18 @@ require(
 			level   : 0
 		},
         _btnOnOff = document.getElementById('onoff'),
-        _txtFPS   = document.getElementById('fps'),
-        _txtLog   = document.getElementById('log');
+        _txtFPS   = document.getElementById('fps');
 		window.game = game; // DEBUG
 
 
 	// helper functions
 	function _updateFPS(fps) {
-        _txtFPS.innerHTML = ~~fps;	// (double-tilde == faster Math.floor)
+        _txtFPS.innerHTML = ~~(fps);
     }
 
 	function _log(msg) {
-		var d = new Date().toISOString().slice(-13, -1),
-			s = atto.supplant("[{time}] {msg}", {"time":d, "msg": msg});
-		console.log(s);
-		_txtLog.innerHTML = msg;
+		var d = new Date().toISOString().slice(-13, -1);
+		console.log(atto.supplant("[{time}] {msg}", {"time":d, "msg": msg}));
 	}
 
 	function _loadLevel(idx) {
@@ -83,6 +78,9 @@ require(
 			game.tiles = new TileSet(_levels[idx]);
 			game.preview = new TileSet(_levels[idx], true);
 			game.level = idx;
+			return true;
+		} else {
+			return false;
 		}
 	}
 	window.loadLevel = _loadLevel;
@@ -100,13 +98,10 @@ require(
 
 	// init state machine
 	game.states.addState({
-		id: 0,
-		title: 'Loading',
-		before: function() {},
+		id: 0, title: 'Loading',
+		before: function(me) {},
 		tick: function(me) {
-			if (me.assets.ready()) {
-				return 1;
-			}
+			if (me.assets.ready()) { return 1; }
 		},
 		render: function(me, ctx) {
 			ctx.fillStyle = _bgColor;
@@ -118,12 +113,11 @@ require(
 	}); // end of state 0
 	
 	game.states.addState({
-		id: 1,
-		title: 'Play',
+		id: 1, title: 'Play',
 		before: function(me) {
 			var ctx = me.context;
+
 			// clear previous canvas
-			//ctx.clearRect(0,0, me.attrs.width, me.attrs.height);
 			ctx.fillStyle = _bgColor;
 			ctx.fillRect(0,0, me.attrs.width, me.attrs.height);
 
@@ -132,109 +126,19 @@ require(
 			}
 
 			ctx.fillStyle = "white";
-
-			ctx.font = "10pt sans-serif";
-			//ctx.fillText("(ESC to toggle help)", 25, 422);
-			ctx.fillText("(ESC to toggle help)", 100, 462);
-
-
 			ctx.font = "18pt sans-serif";
-			ctx.fillText("LEVEL: " + (me.level+1), 20, 416);
 			ctx.fillText("GOAL:", 160, 416);
 
 			// set the entire tilemap's dirty flag so it redraws
 			me.tiles.setDirty(true);
 			me.preview.setDirty(true);
 		},
-		tick: function(me) {
-			//_log('game.update()');
-			// no global updating to do; just tell TileSet to update itself
-			me.tiles.update();
-		},
+		tick: function(me) {},
 		render: function(me, ctx) {
 			me.tiles.render(ctx);
 			me.preview.render(ctx);
 		}
 	}); // end of state 1
-
-	game.states.addState({
-		id: 2,
-		title: 'Level cleared',
-		before: function(me) {
-			var ctx = me.context;
-
-			// render winning tile pattern
-			me.tiles.render(ctx);
-
-			// render "CLEARED" banner
-			ctx.fillStyle = "rgba(0,160,209,0.5)";
-			ctx.fillRect(20,200, me.attrs.width - 40, 60);
-			ctx.fillStyle = "white";
-			ctx.font = "24pt sans-serif";
-			ctx.fillText("LEVEL CLEARED!", 25, 210);
-
-			// init state-transition countdown
-			me.tickCount = 0;
-		},
-		tick: function(me) {
-			if (me.tickCount++ > 100) {
-				return 1;	// go back to state 1 (we've already advanced to the next tile set)
-			}
-		},
-		render: function() {
-			// no additional rendering (did it in before())
-		}
-	}); // end of state 2 (LEVEL CLEAR)
-
-	game.states.addState({
-		id: 3,
-		title: 'Win',
-		before: function(me) {
-			var ctx = me.context;
-
-			// render winning tile pattern
-			me.tiles.render(ctx);
-
-			// render "CLEARED" banner
-			ctx.fillStyle = "rgba(0,160,209,0.5)";
-			ctx.fillRect(20,200, me.attrs.width - 40, 70);
-			ctx.fillStyle = "white";
-			ctx.font = "36pt sans-serif";
-			ctx.fillText("YOU WIN!", 50, 210);
-		},
-		tick: function() {},
-		render: function() {
-			// no additional rendering (did it in before())
-		}
-	}); // end of state 3 (WIN)
-
-	game.states.addState({
-		id: 4,
-		title: 'Help',
-		before: function(me) {
-			var ctx = me.context;
-
-			// render "HELP" overlay
-			ctx.fillStyle = "rgb(0,160,209)";
-			ctx.fillRect(10,180, me.attrs.width - 20, 120);
-
-			// render help text
-			ctx.fillStyle = "black";
-			ctx.font = "10pt sans-serif";
-			ctx.fillText("Objective:", 35, 206);
-			ctx.fillText("Controls:", 35, 226);
-
-			ctx.fillStyle = "white";
-			ctx.fillText("Match the GOAL pattern", 105, 206);
-			ctx.fillText("Arrow keys to move pivot point", 105, 226);
-			ctx.fillText("IJKL to shift tiles", 105, 246);
-			ctx.fillText("R to restart current level", 105, 266);
-		},
-		tick: function() {
-			// wait for user input to return to Play state
-		},
-		render: function() {}
-	}); // end of state 4 (HELP)
 
 
 	// StateManager event callbacks
@@ -244,18 +148,6 @@ require(
 	stateChange(game.states.currentState());
 	game.states.events.changeState.watch(stateChange);
 
-
-	// Pub/Sub handlers (for lightweight cross-object messaging)
-	pubsub.subscribe("quilt.tileset.solved", function ps_levelComplete() {
-		if (game.level === _levels.length-1) {
-			// W00t! You win!
-			game.states.changeState(3, game);
-		} else {
-			// show "CLEARED", then next level
-			game.states.changeState(2, game);
-			_loadLevel(game.level+1);
-		}
-	});
 
 	// set up main loops
 	function _tick() {
@@ -282,9 +174,6 @@ require(
 			Tangle.pause();
 		}
 	});
-	atto.addEvent(document.getElementById('toggle_log'), 'click',
-		function() {  _txtLog.parentNode.classList.toggle("on"); }
-	);
 
 
 	// set up input manager (could be done in another file and just included here)
@@ -334,40 +223,15 @@ require(
 					game.tiles.input(game.tiles.commands.SHIFTRIGHT);
 				}
 				break;
-			case _inputs.HELP:
-				_log("Got HELP input");
-				if (currentStateId === 1) {
-					// if Play state, show Help
-					game.states.changeState(4, game);
-				} else if (currentStateId === 4) {
-					// if in help screen, cancel back to Play
-					game.states.changeState(1, game);
-				}
-				break;
-			case _inputs.RESTART:
-				if (currentStateId === 1) {
-					// if Play state, show Help
-					game.tiles.reset();
-				}
-				break;
-			case _inputs.DEBUG:
-				_txtLog.classList.toggle("debug");
-				break;
 			default:
 				break;
 		}
 	});
 
-	game.im.alias(document, 'mouse:CLICK',  _inputs.HELP);
-
-	game.im.alias(document, 'key:ESCAPE', _inputs.HELP);
-
 	game.im.alias(document, 'key:I', _inputs.SHIFTUP);
 	game.im.alias(document, 'key:J', _inputs.SHIFTLEFT);
 	game.im.alias(document, 'key:K', _inputs.SHIFTDOWN);
 	game.im.alias(document, 'key:L', _inputs.SHIFTRIGHT);
-	game.im.alias(document, 'key:R', _inputs.RESTART);
-	game.im.alias(document, 'key:D', _inputs.DEBUG);
 
 	game.im.alias(document, 'key:ARROW_U', _inputs.MOVEUP);
 	game.im.alias(document, 'key:ARROW_L', _inputs.MOVELEFT);
@@ -378,10 +242,4 @@ require(
 	game.im.alias(document, 'key:KEYPAD_4', _inputs.MOVELEFT);
 	game.im.alias(document, 'key:KEYPAD_2', _inputs.MOVEDOWN);
 	game.im.alias(document, 'key:KEYPAD_6', _inputs.MOVERIGHT);
-
-	game.im.alias(document, 'touch:SWIPE_UP',    _inputs.HELP);
-	//game.im.alias(document, 'touch:SWIPE_UP',    _inputs.SHIFTUP);
-	//game.im.alias(document, 'touch:SWIPE_LEFT',  _inputs.SHIFTLEFT);
-	//game.im.alias(document, 'touch:SWIPE_DOWN',  _inputs.SHIFTDOWN);
-	//game.im.alias(document, 'touch:SWIPE_RIGHT', _inputs.SHIFTRIGHT);
 });

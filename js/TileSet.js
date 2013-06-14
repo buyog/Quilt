@@ -206,25 +206,24 @@ define(
                 };
             }
 
-            function _checkTiles() {
-                var i;
-                if (_ar.length !== _goal.length) {
-                    return false;
-                }
-                for (i=0; i<_ar.length; i++) {
-                    if (_ar[i].color !== _goal[i]) {
-                        return false;
+            function _checkGoal() {
+                // check to see if we've met the goal
+                var i, gotit = true;
+
+                if (_goal && _ar.length === _goal.length) {
+                    for (i=0; i<_ar.length; i++) {
+                        if (_ar[i].color !== _goal[i]) {
+                            gotit = false;
+                            break;
+                        }
                     }
                 }
-                return true;
-            }
-
-            function _update() {
-                // check to see if we've met the goal
-                if (_goal && _checkTiles()) {
+                if (gotit) {
                     pubsub.publish("quilt.tileset.solved");
                 }
             }
+
+            function _update() { /* NO OP HERE FOR PERF REASONS */ }
 
             function _render(ctx) {
                 var i, coords = null;
@@ -287,21 +286,25 @@ define(
                     case _commands.SHIFTUP:
                         col = ~~(_selected / _h);
                         _shiftCol(col,-1);
+                        _checkGoal();                        
                         break;
 
                     case _commands.SHIFTDOWN:
                         col = ~~(_selected / _h);
                         _shiftCol(col,1);
+                        _checkGoal();                        
                         break;
 
                     case _commands.SHIFTLEFT:
                         row = _selected % _h;
                         _shiftRow(row,-1);
+                        _checkGoal();                        
                         break;
 
                     case _commands.SHIFTRIGHT:
                         row = _selected % _h;
                         _shiftRow(row,1);
+                        _checkGoal();                        
                         break;
 
                     default:
